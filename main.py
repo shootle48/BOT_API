@@ -4,8 +4,15 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 
 final_model = joblib.load("best_diabetes_model.pkl")
-model = final_model["model"]
-label_encoders = final_model["label_encoders"]
+
+# ตรวจสอบว่า final_model เป็น LogisticRegression โดยตรงหรือไม่
+if isinstance(final_model, dict):
+    model = final_model["model"]
+    label_encoders = final_model["label_encoders"]
+else:
+    model = final_model
+    label_encoders = None  # ตั้งค่าเป็น None ถ้าไม่มีตัวเข้ารหัส
+
 
 app = Flask(__name__)
 CORS(app)
