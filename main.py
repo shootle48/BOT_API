@@ -17,25 +17,30 @@ def home():
 @app.route("/predict", methods=["POST"])
 def predict():
     try:
-        # รับข้อมูลจาก request body ในรูปแบบ JSON
         data = request.get_json()
+        print(f"🔹 Received Data: {data}")
+
+        # รับข้อมูลและตรวจสอบค่าที่ต้องการ
         Glucose = float(data["Glucose"])
         Insulin = float(data["Insulin"])
         BMI = float(data["BMI"])
-    except (ValueError, KeyError, TypeError):
-        return jsonify({"error": "Invalid input data. Please provide Glucose, Insulin, and BMI values."}), 400
+        print(f"Features: Glucose={Glucose}, Insulin={Insulin}, BMI={BMI}")
 
-    # เตรียมข้อมูลสำหรับทำนายให้เป็น array 2 มิติ
-    input_features = np.array([[Glucose, Insulin, BMI]])
+        # เตรียมข้อมูลสำหรับทำนาย
+        input_features = np.array([[Glucose, Insulin, BMI]])
+        prediction = model.predict(input_features)
+        outcome = "เป็นเบาหวาน" if prediction[0] == 1 else "ไม่เป็นเบาหวาน"
+        prediction_class = "positive" if prediction[0] == 1 else "negative"
 
-    # ทำนายผลด้วยโมเดลที่บันทึกไว้
-    prediction = model.predict(input_features)
-    outcome = "เป็นเบาหวาน" if prediction[0] == 1 else "ไม่เป็นเบาหวาน"
-
-    return jsonify({
-        "prediction": outcome,
-        "prediction_class": "positive" if prediction[0] == 1 else "negative"
-    })
+        print(f"Prediction: {outcome}")
+        return jsonify({
+            "prediction": outcome,
+            "prediction_class": prediction_class
+        })
+    
+    except Exception as e:
+        print(f"Server Error: {str(e)}")
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=10000)
