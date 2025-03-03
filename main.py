@@ -3,7 +3,7 @@ import numpy as np
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 
-final_model = joblib.load("best_model.pkl")
+final_model = joblib.load("best_diabetes_model.pkl")
 model = final_model["model"]
 label_encoders = final_model["label_encoders"]
 
